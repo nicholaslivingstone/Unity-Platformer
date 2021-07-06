@@ -6,6 +6,7 @@ public class PhysicsObject : MonoBehaviour
 {
     public float minGroundNormalY = 0.65f;
     public float gravityModifier = 1f;
+    protected Vector2 targetVelocity; 
     protected bool grounded; 
     protected Vector2 groundNormal;
     protected Rigidbody2D rb2d;
@@ -31,19 +32,31 @@ public class PhysicsObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        targetVelocity = Vector2.zero;
+        ComputeVelocity();
+    }
+
+    protected virtual void ComputeVelocity(){
+
     }
     
     // Since we're doing physics...
     private void FixedUpdate() {
         velocity += gravityModifier * Physics2D.gravity * Time.deltaTime; // Apply gravity to velocity
+        velocity.x = targetVelocity.x;
 
         grounded = false; // register as false until we've collided this frame
 
         Vector2 deltaPosition = velocity * Time.deltaTime; // Change in position
 
-        Vector2 move = Vector2.up * deltaPosition.y; 
+        Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x); // perpendicular to the ground normal
 
+        // X Movement
+        Vector2 move = moveAlongGround * deltaPosition.x;
+        Movement(move, false);
+
+        // Y movement
+        move = Vector2.up * deltaPosition.y; 
         Movement(move, true);
     }
 
@@ -82,11 +95,16 @@ public class PhysicsObject : MonoBehaviour
                 if(projection < 0)
                 {
                     velocity = velocity - projection * currentNormal; // cancel out the part of our velocity that would be stopped by the current collision 
-                }                                                        
+                }
+
+                // this bit will prevent us from accidentally entering another collider
+                float modifiedDistance = hitBufferList[i].distance - shellRadius; // distance to the raycast object 
+                distance = modifiedDistance < distance ? modifiedDistance : distance; // modify the distance only if the distance would cause us to stick into a wall or something
+
+
             }
         }
 
-
-        rb2d.position = rb2d.position + move;
+        rb2d.position = rb2d.position + move.normalized * distance;
     }
 }
