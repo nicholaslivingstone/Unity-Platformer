@@ -39,6 +39,10 @@ public class PhysicsObject : MonoBehaviour
     protected virtual void ComputeVelocity(){
 
     }
+
+    protected virtual void UpdateAnimationParams(){
+
+    }
     
     // Since we're doing physics...
     private void FixedUpdate() {
@@ -58,6 +62,8 @@ public class PhysicsObject : MonoBehaviour
         // Y movement
         move = Vector2.up * deltaPosition.y; 
         Movement(move, true);
+
+        UpdateAnimationParams();
     }
 
     /// <summary>
@@ -106,5 +112,6 @@ public class PhysicsObject : MonoBehaviour
         }
 
         rb2d.position = rb2d.position + move.normalized * distance;
+        
     }
 }
