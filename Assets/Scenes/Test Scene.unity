@@ -273,7 +273,6 @@ MonoBehaviour:
   gravityModifier: 1.75
   maxSpeed: 7
   jumpTakeOffSpeed: 10
-  effectAnimator: {fileID: 1534111987}
 --- !u!95 &512177712
 Animator:
   serializedVersion: 3
