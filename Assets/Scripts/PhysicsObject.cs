@@ -82,9 +82,9 @@ public class PhysicsObject : MonoBehaviour
                 hitBufferList.Add(hitBuffer[i]); // list of objects that are overlapping with the objects collider
             }
 
-            for(int i = 0; i < hitBufferList.Count; i++)
+            foreach(RaycastHit2D collision in hitBufferList)
             {
-                Vector2 currentNormal = hitBufferList[i].normal; 
+                Vector2 currentNormal = collision.normal; 
 
                 // Check if grounded, based on minimum y angle
                 if(currentNormal.y > minGroundNormalY)
@@ -104,10 +104,10 @@ public class PhysicsObject : MonoBehaviour
                 }
 
                 // this bit will prevent us from accidentally entering another collider
-                float modifiedDistance = hitBufferList[i].distance - shellRadius; // distance to the raycast object 
+                float modifiedDistance = collision.distance - shellRadius; // distance to the raycast object 
                 distance = modifiedDistance < distance ? modifiedDistance : distance; // modify the distance only if the distance would cause us to stick into a wall or something
 
-
+                
             }
         }
 
