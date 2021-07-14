@@ -9,11 +9,14 @@ public class PlayerPlatformerController : PhysicsObject
 
     public float pushDecelerationRate = 0.25f;
 
+    private GameObject pushingObject; 
+
     private SpriteRenderer spriteRenderer;
     private MultiAnimator multiAnimator;
 
     void Awake() {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        pushingObject = null; 
     }
 
     private void Start() {
@@ -21,6 +24,7 @@ public class PlayerPlatformerController : PhysicsObject
     }
 
     protected override void ComputeVelocity(){
+        pushingObject = null; 
         Vector2 move = Vector2.zero;
 
         move.x = Input.GetAxis("Horizontal");
@@ -54,6 +58,7 @@ public class PlayerPlatformerController : PhysicsObject
     {
         multiAnimator.SetFloat("moveY", velocity.y);
         multiAnimator.SetBool("grounded", grounded); 
+        multiAnimator.SetBool("pushing", pushingObject != null);
     }
 
     protected override void HandleCollision(RaycastHit2D collision, Vector2 currentNormal)
@@ -65,6 +70,7 @@ public class PlayerPlatformerController : PhysicsObject
         bool pushable = collisionPhysicsObject ? collisionPhysicsObject.IsPushable() : false; // determine if physics object and pushable
 
         if(pushable && currentNormal.x != 0){           // Object is pushble and player is not on top of it
+            pushingObject = collisionGameObject;
             velocity.x *= pushDecelerationRate;         // slow down player when pushing objects
             collisionPhysicsObject.Movement(CalcMoveX(velocity * Time.deltaTime), false);   // push the object
         }
