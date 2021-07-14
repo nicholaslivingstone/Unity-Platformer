@@ -142,7 +142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minGroundNormalY: 0.65
   gravityModifier: 1
-  pushable: 0
+  pushable: 1
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1378,6 +1378,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8874917255020470754, guid: 3497ce1f53a191444ac0c8b4e501f12a, type: 3}
+      propertyPath: maxSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8874917255020470754, guid: 3497ce1f53a191444ac0c8b4e501f12a, type: 3}
+      propertyPath: pushDecelerationRate
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 8874917255020470755, guid: 3497ce1f53a191444ac0c8b4e501f12a, type: 3}
       propertyPath: m_RootOrder
       value: 3
