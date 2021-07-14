@@ -6,6 +6,7 @@ public class PhysicsObject : MonoBehaviour
 {
     public float minGroundNormalY = 0.65f;
     public float gravityModifier = 1f;
+    public bool pushable = false; 
     protected Vector2 targetVelocity; 
     protected bool grounded; 
     protected Vector2 groundNormal;
@@ -76,15 +77,11 @@ public class PhysicsObject : MonoBehaviour
 
         // Collisions
         if(distance > minMoveDistance){// Only check for collisions when we're attempting to move a min Distance
-            int count = rb2d.Cast(move, contactFilter, hitBuffer, distance + shellRadius);
-            hitBufferList.Clear();
-            for(int i = 0; i < count; i++){
-                hitBufferList.Add(hitBuffer[i]); // list of objects that are overlapping with the objects collider
-            }
+            GetRaycastCollsions(move);
 
             foreach(RaycastHit2D collision in hitBufferList)
             {
-                Vector2 currentNormal = collision.normal; 
+                Vector2 currentNormal = collision.normal;
 
                 // Check if grounded, based on minimum y angle
                 if(currentNormal.y > minGroundNormalY)
@@ -97,11 +94,7 @@ public class PhysicsObject : MonoBehaviour
                     }
                 }
 
-                float projection = Vector2.Dot(velocity, currentNormal); // get the difference between the velocity and current normal
-                if(projection < 0)
-                {
-                    velocity = velocity - projection * currentNormal; // cancel out the part of our velocity that would be stopped by the current collision 
-                }
+                HandleCollision(collision, currentNormal);
 
                 // this bit will prevent us from accidentally entering another collider
                 float modifiedDistance = collision.distance - shellRadius; // distance to the raycast object 
@@ -113,5 +106,34 @@ public class PhysicsObject : MonoBehaviour
 
         rb2d.position = rb2d.position + move.normalized * distance;
         
+    }
+
+    /// <summary>
+    /// Raycast to find any collisions occurring with other objects and update hitBufferList
+    /// </summary>
+    /// <param name="move"> Direction moving </param>
+    /// <returns></returns>
+    private int GetRaycastCollsions(Vector2 move){
+
+        int count = rb2d.Cast(move, contactFilter, hitBuffer, move.magnitude + shellRadius);
+        hitBufferList.Clear();
+        for(int i = 0; i < count; i++){
+            hitBufferList.Add(hitBuffer[i]); // list of objects that are overlapping with the objects collider
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// Process the collision and resolve any affects on involved objects. Default is static objects stopping dyanmic ones. 
+    /// </summary>
+    /// <param name="collision"> RaycastHit2D Collision </param>
+    /// <param name="currentNormal"> Collision normal, possibly modified if collision is from ground </param>
+    protected virtual void HandleCollision(RaycastHit2D collision, Vector2 currentNormal){
+
+        float projection = Vector2.Dot(velocity, currentNormal); // get the difference between the velocity and current normal
+
+        if(projection < 0)
+            velocity = velocity - projection * currentNormal; // cancel out the part of our velocity that would be stopped by the current collision 
     }
 }
