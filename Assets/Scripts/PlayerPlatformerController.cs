@@ -7,6 +7,8 @@ public class PlayerPlatformerController : PhysicsObject
     public float maxSpeed = 7;
     public float jumpTakeOffSpeed = 7; 
 
+    public float pushDecelerationRate = 0.25f;
+
     private SpriteRenderer spriteRenderer;
     private MultiAnimator multiAnimator;
 
@@ -52,5 +54,21 @@ public class PlayerPlatformerController : PhysicsObject
     {
         multiAnimator.SetFloat("moveY", velocity.y);
         multiAnimator.SetBool("grounded", grounded); 
+    }
+
+    protected override void HandleCollision(RaycastHit2D collision, Vector2 currentNormal)
+    {
+        GameObject collisionGameObject = collision.transform.gameObject;
+        PhysicsObject collisionPhysicsObject = collisionGameObject.GetComponent<PhysicsObject>();
+
+        // * Pushable object
+        bool pushable = collisionPhysicsObject ? collisionPhysicsObject.IsPushable() : false; // determine if physics object and pushable
+
+        if(pushable && currentNormal.x != 0){           // Object is pushble and player is not on top of it
+            velocity.x *= pushDecelerationRate;         // slow down player when pushing objects
+            collisionPhysicsObject.Movement(CalcMoveX(velocity * Time.deltaTime), false);   // push the object
+        }
+
+        base.HandleCollision(collision, currentNormal); // Handle remainder of collision normally;
     }
 }

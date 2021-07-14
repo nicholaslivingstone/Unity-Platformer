@@ -6,7 +6,8 @@ public class PhysicsObject : MonoBehaviour
 {
     public float minGroundNormalY = 0.65f;
     public float gravityModifier = 1f;
-    public bool pushable = false; 
+    [SerializeField]
+    private bool pushable = false; 
     protected Vector2 targetVelocity; 
     protected bool grounded; 
     protected Vector2 groundNormal;
@@ -51,17 +52,14 @@ public class PhysicsObject : MonoBehaviour
         velocity.x = targetVelocity.x;
 
         grounded = false; // register as false until we've collided this frame
-
-        Vector2 deltaPosition = velocity * Time.deltaTime; // Change in position
-
-        Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x); // perpendicular to the ground normal
+        Vector2 deltaPosition = velocity * Time.deltaTime; 
 
         // X Movement
-        Vector2 move = moveAlongGround * deltaPosition.x;
+        Vector2 move = CalcMoveX(deltaPosition);
         Movement(move, false);
 
         // Y movement
-        move = Vector2.up * deltaPosition.y; 
+        move = CalcMoveY(deltaPosition); 
         Movement(move, true);
 
         UpdateAnimationParams();
@@ -71,7 +69,7 @@ public class PhysicsObject : MonoBehaviour
     /// Apply movement to rigid body
     /// </summary>
     /// <param name="move"> Change in movment </param>
-    void Movement(Vector2 move, bool yMovement){
+    public void Movement(Vector2 move, bool yMovement){
         
         float distance = move.magnitude;
 
@@ -135,5 +133,18 @@ public class PhysicsObject : MonoBehaviour
 
         if(projection < 0)
             velocity = velocity - projection * currentNormal; // cancel out the part of our velocity that would be stopped by the current collision 
+    }
+
+    public bool IsPushable(){
+        return pushable;
+    }
+
+    protected Vector2 CalcMoveX(Vector2 deltaPosition){
+        Vector2 moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x); // perpendicular to the ground normal
+        return moveAlongGround * deltaPosition.x;
+    }
+
+    protected Vector2 CalcMoveY(Vector2 deltaPosition){
+        return  Vector2.up * deltaPosition.y;
     }
 }
